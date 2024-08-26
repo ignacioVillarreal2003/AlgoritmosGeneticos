@@ -13,6 +13,8 @@ GameObject:
   - component: {fileID: 7817123936217481661}
   - component: {fileID: 128667121432113668}
   - component: {fileID: 4561502962240157499}
+  - component: {fileID: 8540054018926149068}
+  - component: {fileID: 4704712587906932106}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -171,7 +173,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00e9bdae630799b45bfbf8effc8c335c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numberOfMovements: 100
   player: {fileID: 0}
   playerSpeed: 50
   moveCooldown: 0.2
+--- !u!114 &8540054018926149068
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4684413157785681959}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bedb8f2dd90fba2419f9ae86159e5ead, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  numberOfMovements: 100
+--- !u!114 &4704712587906932106
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4684413157785681959}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 145ec72f2f6472b4881552e786f72be1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

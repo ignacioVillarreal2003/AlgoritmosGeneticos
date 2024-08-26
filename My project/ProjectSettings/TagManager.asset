@@ -8,6 +8,7 @@ TagManager:
   - Obstacle
   - End
   - Start
+  - GeneticAlgorithm
   layers:
   - Default
   - TransparentFX
