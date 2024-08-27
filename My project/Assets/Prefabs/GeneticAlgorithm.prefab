@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 450345785203755232}
-  - component: {fileID: 7413276063697650657}
+  - component: {fileID: 98126152177812371}
   m_Layer: 0
   m_Name: GeneticAlgorithm
   m_TagString: GeneticAlgorithm
@@ -26,13 +26,13 @@ Transform:
   m_GameObject: {fileID: 5599172920396778467}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.0068247616, y: -0.7254971, z: 0.0242923}
+  m_LocalPosition: {x: -11.94, y: 3.99, z: 0.0242923}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7413276063697650657
+--- !u!114 &98126152177812371
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -41,6 +41,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 5599172920396778467}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 57c4be8ea0d613d4292b5be245c46a73, type: 3}
+  m_Script: {fileID: 11500000, guid: bd7d8ddcf67093d40a6a230e4c2dec77, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerPrefab: {fileID: 4684413157785681959, guid: a1e78b2aae774724285b70a3f2770f7d, type: 3}
+  numberOfPlayers: 20
+  numberOfMovements: 100
+  playerMoveCooldown: 0.2
+  checkpoint: {fileID: 8601692766707946535, guid: cc24c9041f5872f48b3dd3a6b5301d6e, type: 3}
+  numGenerations: 20
+  numOfBest: 6
