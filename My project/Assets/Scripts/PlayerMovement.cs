@@ -14,7 +14,7 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         geneticAlgorithm = FindAnyObjectByType<GeneticAlgorithm>();
-        movements = geneticAlgorithm.GenerateMovements();
+        movements = geneticAlgorithm.GetMovements();
         blockSize = GetComponent<Collider2D>().bounds.size;
     }
 
