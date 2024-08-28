@@ -630,11 +630,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 98126152177812371, guid: 8c5db2fe88215e949999fcf6138eb2ae, type: 3}
       propertyPath: numberOfMovements
-      value: 600
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 98126152177812371, guid: 8c5db2fe88215e949999fcf6138eb2ae, type: 3}
       propertyPath: playerMoveCooldown
-      value: 0.002
+      value: 0.02
+      objectReference: {fileID: 0}
+    - target: {fileID: 98126152177812371, guid: 8c5db2fe88215e949999fcf6138eb2ae, type: 3}
+      propertyPath: playerMoveDuration
+      value: 0.005
       objectReference: {fileID: 0}
     - target: {fileID: 450345785203755232, guid: 8c5db2fe88215e949999fcf6138eb2ae, type: 3}
       propertyPath: m_LocalPosition.x
@@ -803,11 +807,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 8009778477656777522, guid: cc24c9041f5872f48b3dd3a6b5301d6e, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 3.12
+      value: -0.24
       objectReference: {fileID: 0}
     - target: {fileID: 8009778477656777522, guid: cc24c9041f5872f48b3dd3a6b5301d6e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.21
+      value: 2.51
       objectReference: {fileID: 0}
     - target: {fileID: 8009778477656777522, guid: cc24c9041f5872f48b3dd3a6b5301d6e, type: 3}
       propertyPath: m_LocalPosition.z
