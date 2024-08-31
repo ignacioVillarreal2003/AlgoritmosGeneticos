@@ -6,9 +6,10 @@ TagManager:
   tags:
   - Border
   - Obstacle
-  - End
   - Start
   - GeneticAlgorithm
+  - Checkpoint
+  - Individual
   layers:
   - Default
   - TransparentFX
