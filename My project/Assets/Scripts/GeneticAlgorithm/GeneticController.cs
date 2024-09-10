@@ -7,8 +7,9 @@ public class GeneticController : MonoBehaviour
 {
     private int currentGeneration = 1; 
     private List<PlayerController> population = new List<PlayerController>();
-    [Range(40, 200)] [SerializeField] private int adnLength = 40;
+    [Range(20, 100)] [SerializeField] private int adnLength = 20;
     [SerializeField] private float moveCooldown = 0.2f;
+    [SerializeField] private int velocity = 5;
     [Range(5, 50)][SerializeField] private int populationSize = 5;
     [SerializeField] private GameObject playerPrefab;
     [SerializeField] private float mutationRate = 0.02f;
@@ -17,12 +18,14 @@ public class GeneticController : MonoBehaviour
     private Crosses crosses;
     private Mutations mutations;
     private float bestFitness = 0f;
+    private ObstaclesManager obstaclesManager;
 
     void Awake()
     {
         selections = FindAnyObjectByType<Selections>();
         crosses = FindAnyObjectByType<Crosses>();
         mutations = FindAnyObjectByType<Mutations>();
+        obstaclesManager = FindAnyObjectByType<ObstaclesManager>();
     }
     
     void Start()
@@ -69,10 +72,6 @@ public class GeneticController : MonoBehaviour
     {
         List<PlayerController> newPopulation = new List<PlayerController>();
         population.Sort((a, b) => a.getFitness().CompareTo(b.getFitness()));
-        foreach(PlayerController p in population){
-            Debug.Log(p.getFitness());
-        }
-        Debug.Log("Fin fitness");
         if (population[population.Count - 1].getFitness() > bestFitness)
         {
             bestFitness = population[population.Count - 1].getFitness();
@@ -82,8 +81,6 @@ public class GeneticController : MonoBehaviour
         {
             PlayerController parent1 = selections.NormalSelection(); 
             PlayerController parent2 = selections.NormalSelection();
-            Debug.Log(parent1.getFitness());
-            Debug.Log(parent2.getFitness());
             ((int, int, int, int)[], (int, int, int, int)[]) newAdn = crosses.NormalCrossOver(parent1, parent2); 
 
             GameObject playerObj1 = Instantiate(playerPrefab, transform.position, Quaternion.identity);
@@ -105,13 +102,18 @@ public class GeneticController : MonoBehaviour
         }
         currentGeneration ++;
         population = newPopulation;
-    }
 
+        if (obstaclesManager)
+        {
+            obstaclesManager.RebootAll();
+        }
+    }
     public List<PlayerController> getPopulation() => population;
     public int getAdnLength() => adnLength;
     public float getMutationRate() => mutationRate;
     public int getCurrentGeneration() => currentGeneration;
     public float getMoveCooldown() => moveCooldown;
+    public int getVelocity() => velocity;
     public float getGenerationTime() => generationTime;
     public float getBestFitness() => bestFitness;
     public int getPopulationSize() => populationSize;

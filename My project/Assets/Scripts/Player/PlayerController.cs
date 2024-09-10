@@ -6,13 +6,14 @@ public class PlayerController : MonoBehaviour
     public (int, int, int, int)[] genes { get; private set; } = null;
     private int currentGene = 0;
     private Rigidbody2D rb;
-    [SerializeField] private int velocity = 5;
+    private int velocity = 0;
     private float moveTimer = 0f;
     private GeneticController geneticController;
     private float fitness = 0f;
     private List<Checkpoint> checkpoints = new List<Checkpoint>();
     private int currentCheckpoint = 0;
     public bool isDead = false;
+    public bool isFinish = false;
     
     void Awake()
     {
@@ -27,24 +28,27 @@ public class PlayerController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         checkpoints.Sort((a, b) => a.getOrder().CompareTo(b.getOrder()));
+        velocity = geneticController.getVelocity();
     }
 
     void Update()
     {
-        if (isDead || currentGene >= genes.Length) 
+        if (rb) 
         {
-            rb.velocity = Vector2.zero;
-            return;
-        }
-        moveTimer -= Time.deltaTime;
-        if (moveTimer <= 0)
-        {
-            if (currentGene < genes.Length && !isDead) {
-                Move(genes[currentGene]);
-                fitness = Vector3.Distance(transform.position, checkpoints[currentCheckpoint].transform.position);
+            if (isFinish || currentGene >= genes.Length) 
+            {
+                rb.velocity = Vector2.zero;
+                return;
+            }
+            moveTimer -= Time.deltaTime;
+            if (moveTimer <= 0)
+            {
+                if (currentGene < genes.Length && !isDead && !isFinish) {
+                    Move(genes[currentGene]);
+                    fitness = Vector3.Distance(transform.position, checkpoints[currentCheckpoint].transform.position);
+                }
             }
         }
-
     }
     
     public void InitializeGenes()
@@ -92,20 +96,23 @@ public class PlayerController : MonoBehaviour
         {
             fitness *= 1.1f;
             isDead = true;
-        }
-
-        if (other.gameObject.CompareTag("Checkpoint") && other.gameObject.GetComponent<Checkpoint>().getOrder() == currentCheckpoint)
-        {
-            if (currentCheckpoint < checkpoints.Count - 1)
-            {
-                currentCheckpoint ++;
-                fitness *= 0.9f;
-            }
-            if (currentCheckpoint == checkpoints.Count - 1)
-            {
-                isDead = true;
-            }
+            Destroy(rb);
         }
     }
 
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.gameObject.CompareTag("Checkpoint") && other.gameObject.GetComponent<Checkpoint>().getOrder() == currentCheckpoint)
+        {
+            fitness *= 0.9f;
+            currentCheckpoint++;
+            Debug.Log(currentCheckpoint);
+            Destroy(other.gameObject);
+
+            if (currentCheckpoint == checkpoints.Count - 1)
+            {
+                isFinish = true;
+            }
+        }
+    }
 }

@@ -5,31 +5,19 @@ using UnityEngine;
 public class ObstacleMovement1 : MonoBehaviour
 {
     [SerializeField] private float distance = 40f;
-
     [SerializeField] private float speed = 2f; 
-
     [SerializeField] private bool toRight = true;
-    private float initialPosition = 0f;
-    private float finalPosition = 0f;      
+    private float startPosition = 0f;
+    private float endPosition = 0f;      
     private float direction = 1f;
-    
+    private Vector3 initialPosition;
+
     void Start()
     {
-        if (!toRight) 
-        {
-            distance = distance * -1;
-            speed = speed * -1;
-        }
+        initialPosition = transform.position;
         speed = speed / 100f;
-        initialPosition = transform.position.x;
-        finalPosition = transform.position.x + distance;
-
-        if (initialPosition > finalPosition)
-        {
-            float temp = initialPosition;
-            initialPosition = finalPosition;
-            finalPosition = temp;
-        }
+        direction = 1f;
+        InitializeMovement();
     }
 
     void Update()
@@ -37,10 +25,39 @@ public class ObstacleMovement1 : MonoBehaviour
         Vector3 movement = new Vector3(speed * direction, 0, 0);
         transform.position += movement;
 
-        if (transform.position.x > finalPosition || transform.position.x < initialPosition)
+        if (transform.position.x > endPosition || transform.position.x < startPosition)
         {
             direction *= -1f;
         }
-         
+    }
+
+    public void Reboot()
+    {
+        transform.position = initialPosition;
+        InitializeMovement();
+    }
+
+    private void InitializeMovement()
+    {
+        if (!toRight) 
+        {
+            distance = Mathf.Abs(distance) * -1;
+            speed = Mathf.Abs(speed) * -1;
+        }
+        else
+        {
+            distance = Mathf.Abs(distance);
+            speed = Mathf.Abs(speed);
+        }
+
+        startPosition = transform.position.x;
+        endPosition = transform.position.x + distance;
+
+        if (startPosition > endPosition)
+        {
+            float temp = startPosition;
+            startPosition = endPosition;
+            endPosition = temp;
+        }
     }
 }
