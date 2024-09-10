@@ -9,9 +9,9 @@ public class GeneticController : MonoBehaviour
     private List<PlayerController> population = new List<PlayerController>();
     [Range(40, 200)] [SerializeField] private int adnLength = 40;
     [SerializeField] private float moveCooldown = 0.2f;
-    [Range(10, 50)][SerializeField] private int populationSize = 10;
+    [Range(5, 50)][SerializeField] private int populationSize = 5;
     [SerializeField] private GameObject playerPrefab;
-    [SerializeField] private float mutationRate;
+    [SerializeField] private float mutationRate = 0.02f;
     private float generationTime = 0;
     private Selections selections;
     private Crosses crosses;
@@ -29,6 +29,7 @@ public class GeneticController : MonoBehaviour
     {
         populationSize *= 2;
         InitializePopulation();
+        generationTime = moveCooldown * adnLength + 1f;
     }
 
     void Update()
@@ -68,7 +69,10 @@ public class GeneticController : MonoBehaviour
     {
         List<PlayerController> newPopulation = new List<PlayerController>();
         population.Sort((a, b) => a.getFitness().CompareTo(b.getFitness()));
-
+        foreach(PlayerController p in population){
+            Debug.Log(p.getFitness());
+        }
+        Debug.Log("Fin fitness");
         if (population[population.Count - 1].getFitness() > bestFitness)
         {
             bestFitness = population[population.Count - 1].getFitness();
@@ -76,21 +80,22 @@ public class GeneticController : MonoBehaviour
 
         for (int i = 0; i < populationSize / 2; i++)
         {
-            PlayerController parent1 = selections.NormalSelection();
+            PlayerController parent1 = selections.NormalSelection(); 
             PlayerController parent2 = selections.NormalSelection();
+            Debug.Log(parent1.getFitness());
+            Debug.Log(parent2.getFitness());
             ((int, int, int, int)[], (int, int, int, int)[]) newAdn = crosses.NormalCrossOver(parent1, parent2); 
 
             GameObject playerObj1 = Instantiate(playerPrefab, transform.position, Quaternion.identity);
             PlayerController child1 = playerObj1.GetComponent<PlayerController>();
             child1.InitializeGenes(newAdn.Item1);
             mutations.NormalMutation(child1);
+            newPopulation.Add(child1);
 
             GameObject playerObj2 = Instantiate(playerPrefab, transform.position, Quaternion.identity);
             PlayerController child2 = playerObj2.GetComponent<PlayerController>();
             child2.InitializeGenes(newAdn.Item2);
             mutations.NormalMutation(child2);
-
-            newPopulation.Add(child1);
             newPopulation.Add(child2);
         }
 
@@ -98,47 +103,16 @@ public class GeneticController : MonoBehaviour
         {
             Destroy(player.gameObject);
         }
-
+        currentGeneration ++;
         population = newPopulation;
     }
 
-    public List<PlayerController> getPopulation()
-    {
-        return population;
-    }
-
-    public int getAdnLength()
-    {
-        return adnLength;
-    }
-
-    public float getMutationRate()
-    {
-        return mutationRate;
-    }
-
-    public int getCurrentGeneration()
-    {
-        return currentGeneration;
-    }
-
-    public float getMoveCooldown()
-    {
-        return moveCooldown;
-    }
-
-    public float getGenerationTime()
-    {
-        return generationTime;
-    }
-
-    public float getBestFitness()
-    {
-        return bestFitness;
-    }  
-
-    public int getPopulationSize()
-    {
-        return populationSize;
-    }    
+    public List<PlayerController> getPopulation() => population;
+    public int getAdnLength() => adnLength;
+    public float getMutationRate() => mutationRate;
+    public int getCurrentGeneration() => currentGeneration;
+    public float getMoveCooldown() => moveCooldown;
+    public float getGenerationTime() => generationTime;
+    public float getBestFitness() => bestFitness;
+    public int getPopulationSize() => populationSize;
 }

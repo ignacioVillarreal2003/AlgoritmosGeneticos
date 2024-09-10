@@ -5,8 +5,6 @@ using UnityEngine;
 public class Crosses : MonoBehaviour
 {
     private GeneticController geneticController;
-    private int adnLength = 0;
-
     void Awake()
     {
         geneticController = FindAnyObjectByType<GeneticController>();
@@ -14,7 +12,7 @@ public class Crosses : MonoBehaviour
 
     public ((int, int, int, int)[], (int, int, int, int)[]) NormalCrossOver(PlayerController parent1, PlayerController parent2)
     {
-        adnLength = geneticController.getAdnLength();
+        int adnLength = geneticController.getAdnLength();
         int pivot = Random.Range(0, adnLength);
 
         (int, int, int, int)[] child1 = new (int, int, int, int)[adnLength];

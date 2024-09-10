@@ -5,8 +5,6 @@ using UnityEngine;
 public class Mutations : MonoBehaviour
 {
     private GeneticController geneticController;
-    private float mutationRate = 0f;
-
     void Awake()
     {
         geneticController = FindAnyObjectByType<GeneticController>();
@@ -14,7 +12,7 @@ public class Mutations : MonoBehaviour
 
     public void NormalMutation(PlayerController adn)
     {
-        mutationRate = geneticController.getMutationRate();
+        float mutationRate = geneticController.getMutationRate();
         for (int i = 0; i < adn.genes.Length; i++)
         {
             if (Random.Range(0f, 1f) < mutationRate)

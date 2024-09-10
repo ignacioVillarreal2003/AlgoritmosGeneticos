@@ -1,12 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Selections : MonoBehaviour
 {
     private GeneticController geneticController;
-    private List<PlayerController> population = null;
-
     void Awake()
     {
         geneticController = FindAnyObjectByType<GeneticController>();
@@ -14,20 +13,17 @@ public class Selections : MonoBehaviour
 
     public PlayerController NormalSelection()
     {
-        population = geneticController.getPopulation();
-        float totalWeight = 0f;
-        foreach (PlayerController p in population) {
-            totalWeight += p.getFitness();
-        }
-        float randomValue = Random.Range(totalWeight/2f, totalWeight);
-        float cumulativeWeight = 0f;
+        List<PlayerController> population = geneticController.getPopulation();
+        float totalFitness = population.Sum(p => p.getFitness());
+        float randomValue = Random.Range(totalFitness / 1.4f, totalFitness);
+        float cumulativeFitness = 0f;
 
-        for (int i = 0; i < population.Count; i++)
+        foreach (PlayerController player in population)
         {
-            cumulativeWeight += population[i].getFitness();
-            if (randomValue <= cumulativeWeight)
+            cumulativeFitness += player.getFitness();
+            if (randomValue <= cumulativeFitness)
             {
-                return population[i];
+                return player;
             }
         }
         return population[population.Count - 1];

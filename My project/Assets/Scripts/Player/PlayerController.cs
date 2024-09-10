@@ -9,7 +9,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private int velocity = 5;
     private float moveTimer = 0f;
     private GeneticController geneticController;
-    private float fitness = 10000f;
+    private float fitness = 0f;
     private List<Checkpoint> checkpoints = new List<Checkpoint>();
     private int currentCheckpoint = 0;
     public bool isDead = false;
@@ -26,7 +26,6 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        InitializeGenes();
         checkpoints.Sort((a, b) => a.getOrder().CompareTo(b.getOrder()));
     }
 
@@ -42,8 +41,7 @@ public class PlayerController : MonoBehaviour
         {
             if (currentGene < genes.Length && !isDead) {
                 Move(genes[currentGene]);
-                float distancia = Vector3.Distance(transform.position, checkpoints[currentCheckpoint].transform.position);
-                fitness = distancia;
+                fitness = Vector3.Distance(transform.position, checkpoints[currentCheckpoint].transform.position);
             }
         }
 
@@ -86,30 +84,28 @@ public class PlayerController : MonoBehaviour
         moveTimer = geneticController.getMoveCooldown();
     }
 
-    void OnCollisionEnter2D(Collision2D collision)
+    public float getFitness() => 1 / fitness;
+
+    void OnCollisionEnter2D(Collision2D other)
     {
-        if (collision.collider.CompareTag("Checkpoint"))
+        if (other.gameObject.CompareTag("Obstacle"))
+        {
+            fitness *= 1.1f;
+            isDead = true;
+        }
+
+        if (other.gameObject.CompareTag("Checkpoint") && other.gameObject.GetComponent<Checkpoint>().getOrder() == currentCheckpoint)
         {
             if (currentCheckpoint < checkpoints.Count - 1)
             {
                 currentCheckpoint ++;
-                fitness *= 0.8f;
+                fitness *= 0.9f;
             }
             if (currentCheckpoint == checkpoints.Count - 1)
             {
                 isDead = true;
             }
         }
-        if (collision.collider.CompareTag("Obstacle"))
-        {
-            isDead = true;
-            transform.localScale = Vector3.zero;
-            fitness *= 1.2f;
-        }
     }
 
-    public float getFitness()
-    {
-        return 1/fitness;
-    }
 }
