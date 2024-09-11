@@ -19,13 +19,14 @@ public class GeneticController : MonoBehaviour
     private Mutations mutations;
     private float bestFitness = 0f;
     private ObstaclesManager obstaclesManager;
-
+    private CheckpointsManager checkpointsManager;
     void Awake()
     {
         selections = FindAnyObjectByType<Selections>();
         crosses = FindAnyObjectByType<Crosses>();
         mutations = FindAnyObjectByType<Mutations>();
         obstaclesManager = FindAnyObjectByType<ObstaclesManager>();
+        checkpointsManager = FindAnyObjectByType<CheckpointsManager>();
     }
     
     void Start()
@@ -33,10 +34,15 @@ public class GeneticController : MonoBehaviour
         populationSize *= 2;
         InitializePopulation();
         generationTime = moveCooldown * adnLength + 1f;
+        checkpointsManager.InitializePlayers();
     }
 
     void Update()
     {
+        if (OnePlayerIsFinished())
+        {
+            return;
+        }
         if (AllPlayersAreDead())
         {
             BreedNewPopulation();
@@ -66,6 +72,18 @@ public class GeneticController : MonoBehaviour
     bool AllPlayersAreDead()
     {
         return population.All(p => p.isDead);
+    }
+
+    bool OnePlayerIsFinished()
+    {
+        foreach(PlayerController p in population)
+        {
+            if (p.isFinish)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     void BreedNewPopulation()
@@ -107,7 +125,9 @@ public class GeneticController : MonoBehaviour
         {
             obstaclesManager.RebootAll();
         }
+        checkpointsManager.InitializePlayers();
     }
+    
     public List<PlayerController> getPopulation() => population;
     public int getAdnLength() => adnLength;
     public float getMutationRate() => mutationRate;

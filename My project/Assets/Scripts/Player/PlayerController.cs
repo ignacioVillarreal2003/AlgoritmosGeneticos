@@ -10,24 +10,20 @@ public class PlayerController : MonoBehaviour
     private float moveTimer = 0f;
     private GeneticController geneticController;
     private float fitness = 0f;
-    private List<Checkpoint> checkpoints = new List<Checkpoint>();
-    private int currentCheckpoint = 0;
+    private Checkpoint checkpoint;
     public bool isDead = false;
     public bool isFinish = false;
+    private CheckpointsManager checkpointsManager;
     
     void Awake()
     {
         geneticController = FindAnyObjectByType<GeneticController>();
-        foreach(Checkpoint c in FindObjectsOfType<Checkpoint>())
-        {
-            checkpoints.Add(c);
-        }
+        checkpointsManager = FindAnyObjectByType<CheckpointsManager>();
     }
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        checkpoints.Sort((a, b) => a.getOrder().CompareTo(b.getOrder()));
         velocity = geneticController.getVelocity();
     }
 
@@ -41,12 +37,10 @@ public class PlayerController : MonoBehaviour
                 return;
             }
             moveTimer -= Time.deltaTime;
-            if (moveTimer <= 0)
+            if (moveTimer <= 0 && currentGene < genes.Length && !isDead && !isFinish && checkpoint)
             {
-                if (currentGene < genes.Length && !isDead && !isFinish) {
-                    Move(genes[currentGene]);
-                    fitness = Vector3.Distance(transform.position, checkpoints[currentCheckpoint].transform.position);
-                }
+                Move(genes[currentGene]);
+                fitness = Vector3.Distance(transform.position, checkpoint.transform.position);
             }
         }
     }
@@ -102,17 +96,18 @@ public class PlayerController : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.gameObject.CompareTag("Checkpoint") && other.gameObject.GetComponent<Checkpoint>().getOrder() == currentCheckpoint)
+        if (other.gameObject.CompareTag("Checkpoint"))
         {
             fitness *= 0.9f;
-            currentCheckpoint++;
-            Debug.Log(currentCheckpoint);
+            bool isFinalCheckpoint = checkpointsManager.NextCheckpoint();
             Destroy(other.gameObject);
 
-            if (currentCheckpoint == checkpoints.Count - 1)
+            if (isFinalCheckpoint)
             {
                 isFinish = true;
             }
         }
     }
+
+    public void setCheckpoint(Checkpoint checkpoint) => this.checkpoint = checkpoint;
 }
