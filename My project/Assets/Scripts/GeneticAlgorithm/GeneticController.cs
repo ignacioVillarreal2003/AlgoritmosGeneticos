@@ -5,9 +5,10 @@ using UnityEngine;
 
 public class GeneticController : MonoBehaviour
 {
+    /* Population */
     private int currentGeneration = 1; 
     private List<PlayerController> population = new List<PlayerController>();
-    [Range(20, 100)] [SerializeField] private int adnLength = 20;
+    [Range(20, 100)] [SerializeField] private int chromosomeLength = 20;
     [SerializeField] private float moveCooldown = 0.2f;
     [SerializeField] private int velocity = 5;
     [Range(5, 50)][SerializeField] private int populationSize = 5;
@@ -33,7 +34,7 @@ public class GeneticController : MonoBehaviour
     {
         populationSize *= 2;
         InitializePopulation();
-        generationTime = moveCooldown * adnLength + 1f;
+        generationTime = moveCooldown * chromosomeLength + 1f;
         checkpointsManager.InitializePlayers();
     }
 
@@ -54,7 +55,7 @@ public class GeneticController : MonoBehaviour
             {
                 p.isDead = true;
             }
-            generationTime = moveCooldown * adnLength + 1f;
+            generationTime = moveCooldown * chromosomeLength + 1f;
         }
     }
 
@@ -129,7 +130,7 @@ public class GeneticController : MonoBehaviour
     }
     
     public List<PlayerController> getPopulation() => population;
-    public int getAdnLength() => adnLength;
+    public int getAdnLength() => chromosomeLength;
     public float getMutationRate() => mutationRate;
     public int getCurrentGeneration() => currentGeneration;
     public float getMoveCooldown() => moveCooldown;
