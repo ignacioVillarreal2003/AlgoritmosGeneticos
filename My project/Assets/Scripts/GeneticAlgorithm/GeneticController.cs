@@ -14,19 +14,21 @@ public class GeneticController : MonoBehaviour
     [Range(20, 100)] [SerializeField] private int chromosomeLength = 20;
     [SerializeField] private float moveCooldown = 0.2f;
     [SerializeField] private int velocity = 5;
+    [SerializeField] private float penality = 0.1f;
     [SerializeField] private GameObject playerPrefab;
-
 
     /* Algoritmo */
     private Selections selections;
     private Crosses crosses;
     private Mutations mutations;
 
-    /* Otros */
-    private float generationTime = 0;
-    private float bestFitness = 0f;
+    /* Entorno */
     private ObstaclesManager obstaclesManager;
     private CheckpointsManager checkpointsManager;
+
+    /* Otros */
+    private bool simulationFinished = false;
+    private float bestFitness = 0f;
 
     /* Referencias a objetos */
     void Awake()
@@ -49,77 +51,67 @@ public class GeneticController : MonoBehaviour
             population.Add(player);
         }
 
-        generationTime = moveCooldown * chromosomeLength + 1f;
-        checkpointsManager.InitializePlayers();
+        /* Cargamos los checkpoints en los individuos */
+        checkpointsManager.LoadCheckpoints();
     }
 
     void Update()
     {
-        if (OnePlayerIsFinished())
+        if (!simulationFinished)
         {
+            /* Si uno llega a la meta terminamos la simulacion */
+            bool onePlayerIsFinished = population.Any(p => p.GetIsFinish());
+            if (onePlayerIsFinished) 
+            {
+                simulationFinished = true;
+            }
+            /* Si todos murieron creamos una nueva poblacion */
+            bool allPlayersAreDead = population.All(p => p.GetIsDead());
+            Debug.Log(allPlayersAreDead); // raro a veces no entra aca
+            if (allPlayersAreDead)
+            {
+                CreateNewPopulation();
+            }
+        } 
+        else 
+        {
+            /* Finalizamos la simulacion */
             return;
-        }
-        if (AllPlayersAreDead())
-        {
-            CreateNewPopulation();
-        }
-        generationTime -= Time.deltaTime;
-        if (generationTime < 0)
-        {
-            foreach(PlayerController p in population)
-            {
-                p.isDead = true;
-            }
-            generationTime = moveCooldown * chromosomeLength + 1f;
-        }
-    }
-    bool AllPlayersAreDead()
-    {
-        return population.All(p => p.isDead);
-    }
-
-    bool OnePlayerIsFinished()
-    {
-        foreach(PlayerController p in population)
-        {
-            if (p.isFinish)
-            {
-                return true;
-            }
-        }
-        return false;
+        }        
     }
 
     void CreateNewPopulation()
     {
-        List<PlayerController> newPopulation = new List<PlayerController>();
-        population.Sort((a, b) => a.getFitness().CompareTo(b.getFitness()));
-        if (population[population.Count - 1].getFitness() > bestFitness)
+        /* Analisis de la poblacion anterior */
+        population.Sort((a, b) => a.GetFitness().CompareTo(b.GetFitness()));
+        if (population[population.Count - 1].GetFitness() > bestFitness)
         {
-            bestFitness = population[population.Count - 1].getFitness();
+            bestFitness = population[population.Count - 1].GetFitness();
         }
 
         /* Añadimos nuevos individuos a la poblacion mediante seleccion-cruce-mutacion */
+        List<PlayerController> newPopulation = new List<PlayerController>();
+
         while (newPopulation.Count < populationSize)
         {
             PlayerController parent1 = selections.RouletteWheelSelection(population); 
             PlayerController parent2 = selections.RouletteWheelSelection(population);
-            ((int, int, int, int)[], (int, int, int, int)[]) newAdn = crosses.SinglePointCrossover(parent1, parent2); 
+            ((int, int, int, int)[], (int, int, int, int)[]) childs = crosses.SinglePointCrossover(parent1.GetChromosome(), parent2.GetChromosome()); 
+            (int, int, int, int)[] chromosome1 = mutations.UniformMutation(childs.Item1);
+            (int, int, int, int)[] chromosome2 = mutations.UniformMutation(childs.Item2);
 
             if (newPopulation.Count < populationSize)
             {
                 GameObject playerObj1 = Instantiate(playerPrefab, transform.position, Quaternion.identity);
                 PlayerController child1 = playerObj1.GetComponent<PlayerController>();
-                child1.InitializeGenes(newAdn.Item1);
-                mutations.UniformMutation(child1);
+                child1.SetChromosome(chromosome1);
                 newPopulation.Add(child1);
             }
             if (newPopulation.Count < populationSize)
             {
                 GameObject playerObj2 = Instantiate(playerPrefab, transform.position, Quaternion.identity);
                 PlayerController child2 = playerObj2.GetComponent<PlayerController>();
-                child2.InitializeGenes(newAdn.Item2);
-                mutations.UniformMutation(child2);
+                child2.SetChromosome(chromosome2);
                 newPopulation.Add(child2);
             }
         }
@@ -137,15 +129,15 @@ public class GeneticController : MonoBehaviour
         {
             obstaclesManager.RebootAll();
         }
-        checkpointsManager.InitializePlayers();
+        checkpointsManager.LoadCheckpoints();
     }
     
-    public List<PlayerController> getPopulation() => population;
-    public int getChromosomeLength() => chromosomeLength;
-    public int getCurrentGeneration() => currentGeneration;
-    public float getMoveCooldown() => moveCooldown;
-    public int getVelocity() => velocity;
-    public float getGenerationTime() => generationTime;
-    public float getBestFitness() => bestFitness;
-    public int getPopulationSize() => populationSize;
+    public List<PlayerController> GetPopulation() => population;
+    public int GetChromosomeLength() => chromosomeLength;
+    public int GetCurrentGeneration() => currentGeneration;
+    public float GetMoveCooldown() => moveCooldown;
+    public int GetVelocity() => velocity;
+    public float GetPenality() => penality;
+    public float GetBestFitness() => bestFitness;
+    public int GetPopulationSize() => populationSize;
 }

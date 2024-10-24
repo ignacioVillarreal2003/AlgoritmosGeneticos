@@ -14,6 +14,6 @@ public class DataUI : MonoBehaviour
 
     void Update()
     {
-        textMesh.text = "Poblacion total de " + geneticController.getPopulationSize().ToString() + ". Genes por individuo " +  geneticController.getChromosomeLength().ToString();
+        textMesh.text = "Poblacion total de " + geneticController.GetPopulationSize().ToString() + ". Genes por individuo " +  geneticController.GetChromosomeLength().ToString();
     }
 }

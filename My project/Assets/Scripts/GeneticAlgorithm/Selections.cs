@@ -13,13 +13,13 @@ public class Selections : MonoBehaviour
     individuos con menor aptitud sean elegidos. */
     public PlayerController RouletteWheelSelection(List<PlayerController> population)
     {
-        float totalFitness = population.Sum(p => p.getFitness());
+        float totalFitness = population.Sum(p => p.GetFitness());
         float randomValue = Random.Range(0, totalFitness);
         float cumulativeFitness = 0f;
 
         foreach (PlayerController player in population)
         {
-            cumulativeFitness += player.getFitness();
+            cumulativeFitness += player.GetFitness();
             if (randomValue <= cumulativeFitness)
             {
                 return player;
@@ -42,7 +42,7 @@ public class Selections : MonoBehaviour
             tournamentPopulation.Add(population[index]);
         }
 
-        return tournamentPopulation.OrderByDescending(p => p.getFitness()).First();
+        return tournamentPopulation.OrderByDescending(p => p.GetFitness()).First();
     }
 
     /* Igual pero con torneos donde varian los integrantes */
@@ -57,7 +57,7 @@ public class Selections : MonoBehaviour
             tournamentPopulation.Add(selected);
         }
 
-        return tournamentPopulation.OrderByDescending(p => p.getFitness()).First();
+        return tournamentPopulation.OrderByDescending(p => p.GetFitness()).First();
     }
 
     /* En lugar de elegir siempre al mejor en cada torneo, se elige de manera 
@@ -83,7 +83,7 @@ public class Selections : MonoBehaviour
     actual se copien directamente a la siguiente generación sin sufrir modificaciones. */
     public List<PlayerController> ElitismSelection(List<PlayerController> population, int eliteCount)
     {
-        return population.OrderByDescending(p => p.getFitness()).Take(eliteCount).ToList();
+        return population.OrderByDescending(p => p.GetFitness()).Take(eliteCount).ToList();
     }
 
     /* En lugar de usar directamente la aptitud para determinar las probabilidades 
@@ -91,7 +91,7 @@ public class Selections : MonoBehaviour
     probabilidad de selección se basa en el rango. */
     public PlayerController RankSelection(List<PlayerController> population, int capacity)
     {
-        List<PlayerController> rankedPopulation = population.OrderBy(p => p.getFitness()).ToList();
+        List<PlayerController> rankedPopulation = population.OrderBy(p => p.GetFitness()).ToList();
         
         float totalRank = capacity * (capacity + 1) / 2f;
         float randomValue = Random.Range(0, totalRank);
@@ -115,13 +115,13 @@ public class Selections : MonoBehaviour
     public PlayerController TruncationSelection(List<PlayerController> population, float truncationFactor)
     {
         truncationFactor = Mathf.Clamp(truncationFactor, 1f, 3.8f);
-        float totalFitness = population.Sum(p => p.getFitness());
+        float totalFitness = population.Sum(p => p.GetFitness());
         float randomValue = Random.Range(totalFitness / (truncationFactor + 0.2f), totalFitness);
         float cumulativeFitness = 0f;
 
         foreach (PlayerController player in population)
         {
-            cumulativeFitness += player.getFitness();
+            cumulativeFitness += player.GetFitness();
             if (randomValue <= cumulativeFitness)
             {
                 return player;

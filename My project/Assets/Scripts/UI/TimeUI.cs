@@ -16,11 +16,7 @@ public class TimeUI : MonoBehaviour
     void Update()
     {
         totalTime += Time.deltaTime;
-        float generationTime = geneticController.getGenerationTime();
-        
-        string generationTimeFormatted = generationTime.ToString("F2");
         string totalTimeFormatted = totalTime.ToString("F2");
-
-        textMesh.text = "Tiempo generación: " + generationTimeFormatted + "s. Tiempo total: " + totalTimeFormatted + "s";
+        textMesh.text = "Tiempo total: " + totalTimeFormatted + "s";
     }
 }

@@ -5,10 +5,12 @@ using UnityEngine;
 
 public class CheckpointsManager : MonoBehaviour
 {
+    /* Checkpoints */
     private List<Checkpoint> checkpoints = new List<Checkpoint>();
     private int currentCheckpoint = 0;
 
-    void Start()
+    /* Referencias a objetos */
+    void Awake()
     {
         foreach (Checkpoint c in FindObjectsOfType<Checkpoint>())
         {
@@ -17,31 +19,31 @@ public class CheckpointsManager : MonoBehaviour
         checkpoints.Sort((a, b) => a.getOrder().CompareTo(b.getOrder()));
     }
 
-    public void InitializePlayers()
+    /* Carga el checkpont actual en los individuos */
+    public void LoadCheckpoints()
     {
         foreach (PlayerController p in FindObjectsOfType<PlayerController>())
         {
-            p.setCheckpoint(checkpoints[currentCheckpoint]);
+            p.SetCheckpoint(checkpoints[currentCheckpoint]);
         }
     }
 
-    public bool NextCheckpoint()
+    /* Cambia al siguiente checkpoint */
+    public void NextCheckpoint()
     {
-        currentCheckpoint++;
-        if (currentCheckpoint < checkpoints.Count)
+        if (currentCheckpoint < checkpoints.Count - 1)
         {
-            foreach (PlayerController p in FindObjectsOfType<PlayerController>())
-            {
-                p.setCheckpoint(checkpoints[currentCheckpoint]);
-            }
+            currentCheckpoint++;
         }
-        if (currentCheckpoint == checkpoints.Count)
+    }
+
+    /* Verificar si es el final */
+    public bool IsTheEnd()
+    {
+        if (currentCheckpoint == checkpoints.Count - 1)
         {
             return true;
-        } 
-        else 
-        {
-            return false;
         }
+        return false;
     }
 }

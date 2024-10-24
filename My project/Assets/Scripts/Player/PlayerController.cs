@@ -3,52 +3,62 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public (int, int, int, int)[] chromosome { get; private set; } = null;
+    /* Cromosoma */
+    private (int, int, int, int)[] chromosome;
     private int currentGene = 0;
-    private Rigidbody2D rb;
-    private int velocity = 0;
-    private float moveTimer = 0f;
-    private GeneticController geneticController;
     private float fitness = 0f;
+    private bool isDead = false;
+    private bool isFinish = false;
+
+    /* Variables */
+    private int velocity = 0;
+    private float moveCooldown = 0f;
+    private float penality = 0f;
+
+    /* Algoritmo */
+    private GeneticController geneticController;
+
+    /* Otros */
+    private Rigidbody2D rb;
     private Checkpoint checkpoint;
-    public bool isDead = false;
-    public bool isFinish = false;
     private CheckpointsManager checkpointsManager;
     
+    /* Referencias a objetos */
     void Awake()
     {
         geneticController = FindAnyObjectByType<GeneticController>();
         checkpointsManager = FindAnyObjectByType<CheckpointsManager>();
     }
 
+    /* Inicializa variables */
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        velocity = geneticController.getVelocity();
+        velocity = geneticController.GetVelocity();
+        penality = geneticController.GetPenality();
+        moveCooldown = geneticController.GetMoveCooldown();
     }
 
+    /* Manejador del movimiento del individuo */
     void Update()
     {
-        if (rb) 
+        moveCooldown -= Time.deltaTime;
+        if (moveCooldown <= 0 && currentGene == chromosome.Length - 1)
         {
-            if (isFinish || currentGene >= chromosome.Length) 
-            {
-                rb.velocity = Vector2.zero;
-                return;
-            }
-            moveTimer -= Time.deltaTime;
-            if (moveTimer <= 0 && currentGene < chromosome.Length && !isDead && !isFinish && checkpoint)
-            {
-                Move(chromosome[currentGene]);
-                fitness = Vector3.Distance(transform.position, checkpoint.transform.position);
-            }
+            isDead = true;
+        }
+        if (moveCooldown <= 0 && !isDead && !isFinish)
+        {
+            Move(chromosome[currentGene]);
+            fitness = Vector3.Distance(transform.position, checkpoint.transform.position);
         }
     }
     
+    /* Inicializa los genes de la primera generacion */
     public void InitializeGenes()
     {
-        chromosome = new (int, int, int, int)[geneticController.getChromosomeLength()];
-        for (int i = 0; i < geneticController.getChromosomeLength(); i++){
+        chromosome = new (int, int, int, int)[geneticController.GetChromosomeLength()];
+        for (int i = 0; i < geneticController.GetChromosomeLength(); i++){
             int randomNumber = Random.Range(0, 4);
             if (randomNumber == 0) {
                 chromosome[i] = (1, 0, 0, 0);
@@ -62,11 +72,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void InitializeGenes((int, int, int, int)[] newGenes)
-    {
-        chromosome = newGenes;
-    }
-
+    /* Movimiento del individuo */
     void Move((int, int, int, int) movement)
     {
         if (movement.Item1 == 1){
@@ -79,35 +85,45 @@ public class PlayerController : MonoBehaviour
             rb.velocity = new Vector2(velocity*-1, rb.velocity.y);
         }
         currentGene++;
-        moveTimer = geneticController.getMoveCooldown();
+        moveCooldown = geneticController.GetMoveCooldown();
     }
-
-    public float getFitness() => 1 / fitness;
 
     void OnCollisionEnter2D(Collision2D other)
     {
+        /* Interaccion del individuo con los obstaculos */
         if (other.gameObject.CompareTag("Obstacle"))
         {
-            fitness *= 1.1f;
+            fitness *= 1 + penality;
+
             isDead = true;
+
             Destroy(rb);
         }
     }
 
     void OnTriggerEnter2D(Collider2D other)
     {
+        /* Interaccion del individuo con el checkpoint */
         if (other.gameObject.CompareTag("Checkpoint"))
         {
-            fitness *= 0.9f;
-            bool isFinalCheckpoint = checkpointsManager.NextCheckpoint();
-            Destroy(other.gameObject);
+            fitness *= 1 - penality;
 
-            if (isFinalCheckpoint)
+            checkpointsManager.NextCheckpoint();
+            checkpointsManager.LoadCheckpoints();
+
+            if (checkpointsManager.IsTheEnd())
             {
                 isFinish = true;
             }
+            
+            Destroy(other.gameObject);
         }
     }
 
-    public void setCheckpoint(Checkpoint checkpoint) => this.checkpoint = checkpoint;
+    public (int, int, int, int)[] GetChromosome() => chromosome;
+    public void SetChromosome((int, int, int, int)[] newGenes) => chromosome = newGenes;
+    public bool GetIsDead() => isDead;
+    public bool GetIsFinish() => isFinish;
+    public float GetFitness() => 1 / fitness;
+    public void SetCheckpoint(Checkpoint value) => checkpoint = value;
 }

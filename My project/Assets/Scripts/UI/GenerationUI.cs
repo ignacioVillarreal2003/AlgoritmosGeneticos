@@ -14,6 +14,6 @@ public class GenerationUI : MonoBehaviour
 
     void Update()
     {
-        textMesh.text = "Generation: " + geneticController.getCurrentGeneration().ToString();
+        textMesh.text = "Generation: " + geneticController.GetCurrentGeneration().ToString();
     }
 }

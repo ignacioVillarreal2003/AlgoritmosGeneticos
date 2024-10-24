@@ -14,6 +14,6 @@ public class BestFitnessUI : MonoBehaviour
 
     void Update()
     {
-        textMesh.text = "Mejor fitness " + geneticController.getBestFitness().ToString() + "/1";
+        textMesh.text = "Mejor fitness " + geneticController.GetBestFitness().ToString() + "/1";
     }
 }

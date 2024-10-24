@@ -7,24 +7,26 @@ public class Mutations : MonoBehaviour
     /* En esta mutación, cada gen del individuo tiene una probabilidad p 
     de ser reemplazado por un valor aleatorio dentro de su dominio de 
     posibles valores. */
-    public void UniformMutation(PlayerController adn)
+    public (int, int, int, int)[] UniformMutation((int, int, int, int)[] chromosome)
     {
-        for (int i = 0; i < adn.chromosome.Length; i++)
+        for (int i = 0; i < chromosome.Length; i++)
         {
             if (Random.Range(0f, 1f) < 0.05)
             {
                 int randomNumber = Random.Range(0, 4);
                 if (randomNumber == 0) {
-                    adn.chromosome[i] = (1, 0, 0, 0);
+                    chromosome[i] = (1, 0, 0, 0);
                 } else if (randomNumber == 1) {
-                    adn.chromosome[i] = (0, 1, 0, 0);
+                    chromosome[i] = (0, 1, 0, 0);
                 } else if (randomNumber == 2) {
-                    adn.chromosome[i] = (0, 0, 1, 0);
+                    chromosome[i] = (0, 0, 1, 0);
                 } else {
-                    adn.chromosome[i] = (0, 0, 0, 1);
+                    chromosome[i] = (0, 0, 0, 1);
                 }
             }
         }
+
+        return chromosome;
     }
 
     /* Modificacion de mutacion uniforme, si la población converge 
@@ -35,24 +37,26 @@ public class Mutations : MonoBehaviour
 
     [SerializeField] private float mutationRateAdaptative = 0.02f;
 
-    public void AdaptativeMutation(PlayerController adn)
+    public (int, int, int, int)[] AdaptativeMutation((int, int, int, int)[] chromosome)
     {
-        for (int i = 0; i < adn.chromosome.Length; i++)
+        for (int i = 0; i < chromosome.Length; i++)
         {
             if (Random.Range(0f, 1f) < mutationRateAdaptative)
             {
                 int randomNumber = Random.Range(0, 4);
                 if (randomNumber == 0) {
-                    adn.chromosome[i] = (1, 0, 0, 0);
+                    chromosome[i] = (1, 0, 0, 0);
                 } else if (randomNumber == 1) {
-                    adn.chromosome[i] = (0, 1, 0, 0);
+                    chromosome[i] = (0, 1, 0, 0);
                 } else if (randomNumber == 2) {
-                    adn.chromosome[i] = (0, 0, 1, 0);
+                    chromosome[i] = (0, 0, 1, 0);
                 } else {
-                    adn.chromosome[i] = (0, 0, 0, 1);
+                    chromosome[i] = (0, 0, 0, 1);
                 }
             }
         }
+
+        return chromosome;
     }
 
     public void ChangeMutationRateAdaptative(bool isBetter)
@@ -69,74 +73,73 @@ public class Mutations : MonoBehaviour
 
     /* Se seleccionan dos posiciones aleatorias en el individuo y se 
     intercambian los valores de esas posiciones. */
-    public void Swap1Mutation(PlayerController individual)
+    public (int, int, int, int)[] Swap1Mutation((int, int, int, int)[] chromosome)
     {
-        (int, int, int, int)[] genes = individual.chromosome;
+        int pivot1 = Random.Range(0, chromosome.Length);
+        int pivot2 = Random.Range(0, chromosome.Length);
 
-        int pivot1 = Random.Range(0, genes.Length);
-        int pivot2 = Random.Range(0, genes.Length);
+        (int, int, int, int) aux = chromosome[pivot1];
+        chromosome[pivot1] = chromosome[pivot2];
+        chromosome[pivot2] = aux;
 
-        (int, int, int, int) aux = genes[pivot1];
-        genes[pivot1] = genes[pivot2];
-        genes[pivot2] = aux;
+        return chromosome;
     }
 
-    public void Swap2Mutation(PlayerController individual)
+    public (int, int, int, int)[] Swap2Mutation((int, int, int, int)[] chromosome)
     {
         int position = 0;
-        (int, int, int, int)[] genes = individual.chromosome;
 
-        while (position < genes.Length)
+        while (position < chromosome.Length)
         {
-            int pivot1 = Random.Range(position, genes.Length);
-            int pivot2 = Random.Range(position, genes.Length);
+            int pivot1 = Random.Range(position, chromosome.Length);
+            int pivot2 = Random.Range(position, chromosome.Length);
 
-            (int, int, int, int) aux = individual.chromosome[pivot1];
-            individual.chromosome[pivot1] = individual.chromosome[pivot2];
-            individual.chromosome[pivot2] = aux;
+            (int, int, int, int) aux = chromosome[pivot1];
+            chromosome[pivot1] = chromosome[pivot2];
+            chromosome[pivot2] = aux;
 
             position = System.Math.Min(pivot1, pivot2);
         }
+
+        return chromosome;
     }
     
     /* En la mutación de inserción, un gen es seleccionado, se elimina 
     de su posición actual y se inserta en otra posición. El resto de 
     los genes se mueven en consecuencia. */
-    public void InsertionMutation(PlayerController individual)
-    {
-        (int, int, int, int)[] genes = individual.chromosome;
+    public (int, int, int, int)[] InsertionMutation((int, int, int, int)[] chromosome)
+    {        
+        int geneToMove = Random.Range(0, chromosome.Length);
+        int newPosition = Random.Range(0, chromosome.Length);
         
-        int geneToMove = Random.Range(0, genes.Length);
-        int newPosition = Random.Range(0, genes.Length);
-        
-        (int, int, int, int) gene = genes[geneToMove];
+        (int, int, int, int) gene = chromosome[geneToMove];
         
         if (newPosition < geneToMove)
         {
             for (int i = geneToMove; i > newPosition; i--)
             {
-                genes[i] = genes[i - 1];
+                chromosome[i] = chromosome[i - 1];
             }
         }
         else if (newPosition > geneToMove)
         {
             for (int i = geneToMove; i < newPosition; i++)
             {
-                genes[i] = genes[i + 1];
+                chromosome[i] = chromosome[i + 1];
             }
         }
         
-        genes[newPosition] = gene;
+        chromosome[newPosition] = gene;
+
+        return chromosome;
     }
 
     /* La mutación de inversión selecciona dos puntos en el 
     cromosoma y revierte el orden de los genes entre esos dos puntos. */
-    public void InversionMutation(PlayerController individual)
-    {
-        (int, int, int, int)[] genes = individual.chromosome;
-        
-        int pivot1 = Random.Range(0, genes.Length);
-        int pivot2 = Random.Range(0, genes.Length);
+    public (int, int, int, int)[] InversionMutation((int, int, int, int)[] chromosome)
+    {        
+        int pivot1 = Random.Range(0, chromosome.Length);
+        int pivot2 = Random.Range(0, chromosome.Length);
         
         if (pivot1 > pivot2)
         {
@@ -147,22 +150,22 @@ public class Mutations : MonoBehaviour
 
         while (pivot1 < pivot2)
         {
-            (int, int, int, int) aux = genes[pivot1];
-            genes[pivot1] = genes[pivot2];
-            genes[pivot2] = aux;
+            (int, int, int, int) aux = chromosome[pivot1];
+            chromosome[pivot1] = chromosome[pivot2];
+            chromosome[pivot2] = aux;
             pivot1++;
             pivot2--;
         }
+
+        return chromosome;
     }
 
     /* En la mutación de desplazamiento, se selecciona un segmento del 
     cromosoma y se mueve de manera aleatoria dentro del mismo. */
-    public void ShiftMutation(PlayerController individual)
+    public (int, int, int, int)[] ShiftMutation((int, int, int, int)[] chromosome)
     {
-        (int, int, int, int)[] genes = individual.chromosome;
-
-        int start = Random.Range(0, genes.Length);
-        int end = Random.Range(0, genes.Length);
+        int start = Random.Range(0, chromosome.Length);
+        int end = Random.Range(0, chromosome.Length);
 
         if (start > end)
         {
@@ -174,29 +177,31 @@ public class Mutations : MonoBehaviour
         (int, int, int, int)[] segment = new (int, int, int, int)[end - start + 1];
         for (int i = start; i <= end; i++)
         {
-            segment[i - start] = genes[i];
+            segment[i - start] = chromosome[i];
         }
 
-        int newPosition = Random.Range(0, genes.Length - segment.Length + 1);
+        int newPosition = Random.Range(0, chromosome.Length - segment.Length + 1);
 
         if (newPosition < start)
         {
-            for (int i = start; i < genes.Length - segment.Length; i++)
+            for (int i = start; i < chromosome.Length - segment.Length; i++)
             {
-                genes[end - (i - start)] = genes[i];
+                chromosome[end - (i - start)] = chromosome[i];
             }
         }
         else if (newPosition > end)
         {
             for (int i = end; i < newPosition; i++)
             {
-                genes[i] = genes[i + 1];
+                chromosome[i] = chromosome[i + 1];
             }
         }
 
         for (int i = 0; i < segment.Length; i++)
         {
-            genes[newPosition + i] = segment[i];
+            chromosome[newPosition + i] = segment[i];
         }
+
+        return chromosome;
     }
 }
