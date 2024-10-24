@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,20 +8,23 @@ public class GeneticController : MonoBehaviour
 {
     /* Generacion */
     private int currentGeneration = 1; 
-    [Range(10, 100)][SerializeField] private int populationSize = 10;
+    [Range(20, 100)] [SerializeField] private int populationSize = 20;
     private List<PlayerController> population = new List<PlayerController>();
 
     /* Poblacion */
-    [Range(20, 100)] [SerializeField] private int chromosomeLength = 20;
+    [Range(20, 100)] [SerializeField] private int chromosomeLength = 40;
     [SerializeField] private float moveCooldown = 0.2f;
     [SerializeField] private int velocity = 5;
-    [SerializeField] private float penality = 0.1f;
+    [SerializeField] private float penality = 0.05f;
     [SerializeField] private GameObject playerPrefab;
 
     /* Algoritmo */
     private Selections selections;
+    [SerializeField] private Selections.SelectionsOptions selectionOptions = Selections.SelectionsOptions.TruncationSelection;
     private Crosses crosses;
+    [SerializeField] private Crosses.CrossesOptions crossesOptions = Crosses.CrossesOptions.SinglePointCrossover;
     private Mutations mutations;
+    [SerializeField] private Mutations.MutationsOptions mutationsOptions = Mutations.MutationsOptions.UniformMutation;
 
     /* Entorno */
     private ObstaclesManager obstaclesManager;
@@ -60,15 +64,14 @@ public class GeneticController : MonoBehaviour
         if (!simulationFinished)
         {
             /* Si uno llega a la meta terminamos la simulacion */
-            bool onePlayerIsFinished = population.Any(p => p.GetIsFinish());
-            if (onePlayerIsFinished) 
+            if (population.Any(p => p.GetIsFinish())) 
             {
                 simulationFinished = true;
+                ClearPopulation();
             }
+
             /* Si todos murieron creamos una nueva poblacion */
-            bool allPlayersAreDead = population.All(p => p.GetIsDead());
-            Debug.Log(allPlayersAreDead); // raro a veces no entra aca
-            if (allPlayersAreDead)
+            if (population.All(p => p.GetIsDead()))
             {
                 CreateNewPopulation();
             }
@@ -82,23 +85,26 @@ public class GeneticController : MonoBehaviour
 
     void CreateNewPopulation()
     {
-        /* Analisis de la poblacion anterior */
-        population.Sort((a, b) => a.GetFitness().CompareTo(b.GetFitness()));
-        if (population[population.Count - 1].GetFitness() > bestFitness)
-        {
-            bestFitness = population[population.Count - 1].GetFitness();
-        }
+        PopulationProcessing();
 
         /* Añadimos nuevos individuos a la poblacion mediante seleccion-cruce-mutacion */
         List<PlayerController> newPopulation = new List<PlayerController>();
 
+        List<PlayerController> elitPopulation = selections.ElitismSelection(population); 
+        elitPopulation.ForEach((p) => { 
+            GameObject playerObj = Instantiate(playerPrefab, transform.position, Quaternion.identity);
+            PlayerController individual = playerObj.GetComponent<PlayerController>();
+            individual.SetChromosome(p.GetChromosome());
+            newPopulation.Add(individual);
+        });
+    
         while (newPopulation.Count < populationSize)
         {
-            PlayerController parent1 = selections.RouletteWheelSelection(population); 
-            PlayerController parent2 = selections.RouletteWheelSelection(population);
-            ((int, int, int, int)[], (int, int, int, int)[]) childs = crosses.SinglePointCrossover(parent1.GetChromosome(), parent2.GetChromosome()); 
-            (int, int, int, int)[] chromosome1 = mutations.UniformMutation(childs.Item1);
-            (int, int, int, int)[] chromosome2 = mutations.UniformMutation(childs.Item2);
+            PlayerController parent1 = selections.Select(selectionOptions, population); 
+            PlayerController parent2 = selections.Select(selectionOptions, population);
+            ((int, int, int, int)[], (int, int, int, int)[]) childs = crosses.Cross(crossesOptions, parent1.GetChromosome(), parent2.GetChromosome());
+            (int, int, int, int)[] chromosome1 = mutations.Mutate(mutationsOptions, childs.Item1);
+            (int, int, int, int)[] chromosome2 = mutations.Mutate(mutationsOptions, childs.Item2);
 
             if (newPopulation.Count < populationSize)
             {
@@ -116,15 +122,40 @@ public class GeneticController : MonoBehaviour
             }
         }
 
-        /* Remplazamos la poblacion anterior con la nueva */
+        /* Ajustamos datos */
+        ClearPopulation();
+        currentGeneration ++;
+        population = newPopulation;
+        ResetEnvironment();
+    }    
+
+    /* Analisis de la poblacion */
+    private void PopulationProcessing()
+    {
+        population.Sort((a, b) => a.GetFitness().CompareTo(b.GetFitness()));
+        if (population[population.Count - 1].GetFitness() > bestFitness)
+        {
+            bestFitness = population[population.Count - 1].GetFitness();
+            mutations.ChangeMutationRateAdaptative(true);
+        }
+        else
+        {
+            mutations.ChangeMutationRateAdaptative(false);
+        }
+    }
+
+    /* Elimina la poblacion */
+    private void ClearPopulation()
+    {
         foreach (var player in population)
         {
             Destroy(player.gameObject);
         }
-        currentGeneration ++;
-        population = newPopulation;
+    }
 
-        /* Reiniciamos los obstaculos y checkpoints */
+    /* Reiniciamos los obstaculos y checkpoints */
+    private void ResetEnvironment()
+    {
         if (obstaclesManager)
         {
             obstaclesManager.RebootAll();

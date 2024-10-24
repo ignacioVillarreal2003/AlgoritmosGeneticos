@@ -4,6 +4,50 @@ using UnityEngine;
 
 public class Mutations : MonoBehaviour
 {
+    public (int, int, int, int)[] Mutate(MutationsOptions mutationsOptions, (int, int, int, int)[] individual)
+    {
+        if (mutationsOptions == MutationsOptions.UniformMutation)
+        {
+            return UniformMutation(individual);
+        }
+        if (mutationsOptions == MutationsOptions.AdaptativeMutation)
+        {
+            return AdaptativeMutation(individual);
+        }
+        if (mutationsOptions == MutationsOptions.Swap1Mutation)
+        {
+            return Swap1Mutation(individual);
+        }
+        if (mutationsOptions == MutationsOptions.Swap2Mutation)
+        {
+            return Swap2Mutation(individual);
+        }
+        if (mutationsOptions == MutationsOptions.ShiftMutation)
+        {
+            return ShiftMutation(individual);
+        }
+        if (mutationsOptions == MutationsOptions.InversionMutation)
+        {
+            return InversionMutation(individual);
+        }
+        if (mutationsOptions == MutationsOptions.InsertionMutation)
+        {
+            return InsertionMutation(individual);
+        }
+        return individual;
+    }
+
+    public enum MutationsOptions
+    {
+        UniformMutation,
+        AdaptativeMutation,
+        Swap1Mutation,
+        Swap2Mutation,
+        ShiftMutation,
+        InversionMutation,
+        InsertionMutation
+    }
+
     /* En esta mutación, cada gen del individuo tiene una probabilidad p 
     de ser reemplazado por un valor aleatorio dentro de su dominio de 
     posibles valores. */

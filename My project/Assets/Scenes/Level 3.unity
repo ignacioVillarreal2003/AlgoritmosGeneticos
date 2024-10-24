@@ -24568,6 +24568,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: -901086665356618046, guid: fd288e0a975f2fc429459297c37a738f, type: 3}
+      propertyPath: penality
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: -901086665356618046, guid: fd288e0a975f2fc429459297c37a738f, type: 3}
       propertyPath: velocity
       value: 15
       objectReference: {fileID: 0}
@@ -24581,11 +24585,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -901086665356618046, guid: fd288e0a975f2fc429459297c37a738f, type: 3}
       propertyPath: populationSize
-      value: 30
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: -901086665356618046, guid: fd288e0a975f2fc429459297c37a738f, type: 3}
       propertyPath: chromosomeLength
-      value: 40
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: -901086665356618046, guid: fd288e0a975f2fc429459297c37a738f, type: 3}
+      propertyPath: mutationsOptions
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 450345785203755232, guid: fd288e0a975f2fc429459297c37a738f, type: 3}
       propertyPath: m_LocalPosition.x
@@ -24626,6 +24634,18 @@ PrefabInstance:
     - target: {fileID: 450345785203755232, guid: fd288e0a975f2fc429459297c37a738f, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3937477407573459592, guid: fd288e0a975f2fc429459297c37a738f, type: 3}
+      propertyPath: eliteCount
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3937477407573459592, guid: fd288e0a975f2fc429459297c37a738f, type: 3}
+      propertyPath: factorTruncationSelection
+      value: 1.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3937477407573459592, guid: fd288e0a975f2fc429459297c37a738f, type: 3}
+      propertyPath: capacityStochasticTournamentSelection
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 5599172920396778467, guid: fd288e0a975f2fc429459297c37a738f, type: 3}
       propertyPath: m_Name

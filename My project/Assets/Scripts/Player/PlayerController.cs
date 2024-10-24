@@ -106,14 +106,15 @@ public class PlayerController : MonoBehaviour
         /* Interaccion del individuo con el checkpoint */
         if (other.gameObject.CompareTag("Checkpoint"))
         {
-            fitness *= 1 - penality;
-
-            checkpointsManager.NextCheckpoint();
-            checkpointsManager.LoadCheckpoints();
-
             if (checkpointsManager.IsTheEnd())
             {
                 isFinish = true;
+            }
+            else 
+            {
+                fitness *= 1 - penality;
+                checkpointsManager.NextCheckpoint();
+                checkpointsManager.LoadCheckpoints();
             }
             
             Destroy(other.gameObject);

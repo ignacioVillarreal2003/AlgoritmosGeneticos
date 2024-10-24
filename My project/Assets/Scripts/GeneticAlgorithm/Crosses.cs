@@ -4,9 +4,43 @@ using UnityEngine;
 
 public class Crosses : MonoBehaviour
 {
+    public ((int, int, int, int)[], (int, int, int, int)[]) Cross(CrossesOptions crossesOptions, (int, int, int, int)[] parent1, (int, int, int, int)[] parent2)
+    {
+        if (crossesOptions == CrossesOptions.SinglePointCrossover)
+        {
+            return SinglePointCrossover(parent1, parent2);
+        }
+        if (crossesOptions == CrossesOptions.TwoPointCrossover)
+        {
+            return TwoPointCrossover(parent1, parent2);
+        }
+        if (crossesOptions == CrossesOptions.MultiPointCrossover)
+        {
+            return MultiPointCrossover(parent1, parent2);
+        }
+        if (crossesOptions == CrossesOptions.BestFitnessCrossover)
+        {
+            return BestFitnessCrossover(parent1, parent2);
+        }
+        if (crossesOptions == CrossesOptions.UniformCrossover)
+        {
+            return UniformCrossover(parent1, parent2);
+        }
+        return (parent1, parent2);
+    }
+
+    public enum CrossesOptions
+    {
+        SinglePointCrossover,
+        TwoPointCrossover,
+        MultiPointCrossover,
+        BestFitnessCrossover,
+        UniformCrossover
+    }
+
     /* Se selecciona aleatoriamente un punto de cruce en la cadena de genes de los padres, 
     y se intercambia todo el material genético después de ese punto para formar los hijos. */
-    public ((int, int, int, int)[], (int, int, int, int)[]) SinglePointCrossover((int, int, int, int)[] parent1, (int, int, int, int)[] parent2)
+    private ((int, int, int, int)[], (int, int, int, int)[]) SinglePointCrossover((int, int, int, int)[] parent1, (int, int, int, int)[] parent2)
     {
         int chromosomeLength = parent1.Length;
         int pivot = Random.Range(0, chromosomeLength);
@@ -33,7 +67,7 @@ public class Crosses : MonoBehaviour
 
     /* En este tipo de cruce, se seleccionan dos puntos en la cadena genética, 
     y el intercambio de material genético se realiza entre esos dos puntos. */
-    public ((int, int, int, int)[], (int, int, int, int)[]) TwoPointCrossover((int, int, int, int)[] parent1, (int, int, int, int)[] parent2)
+    private ((int, int, int, int)[], (int, int, int, int)[]) TwoPointCrossover((int, int, int, int)[] parent1, (int, int, int, int)[] parent2)
     {
         int chromosomeLength = parent1.Length;
         int pivot1 = Random.Range(0, chromosomeLength - 1);
@@ -68,7 +102,7 @@ public class Crosses : MonoBehaviour
     /* Este es una generalización del cruce de dos puntos. Se seleccionan varios 
     puntos de cruce en la cadena genética y se alterna la combinación de genes 
     entre esos puntos. */
-    public ((int, int, int, int)[], (int, int, int, int)[]) MultiPointCrossover((int, int, int, int)[] parent1, (int, int, int, int)[] parent2)
+    private ((int, int, int, int)[], (int, int, int, int)[]) MultiPointCrossover((int, int, int, int)[] parent1, (int, int, int, int)[] parent2)
     {
         int chromosomeLength = parent1.Length;
         int acumulated = 0;
@@ -109,7 +143,7 @@ public class Crosses : MonoBehaviour
     en el cruce uniforme se considera cada gen de forma independiente, con 
     una probabilidad predefinida (generalmente 50%) de que el gen de un padre sea 
     tomado o no. */
-    public ((int, int, int, int)[], (int, int, int, int)[]) UniformCrossover((int, int, int, int)[] parent1, (int, int, int, int)[] parent2)
+    private ((int, int, int, int)[], (int, int, int, int)[]) UniformCrossover((int, int, int, int)[] parent1, (int, int, int, int)[] parent2)
     {
         int chromosomeLength = parent1.Length;
 
@@ -139,7 +173,7 @@ public class Crosses : MonoBehaviour
     coinciden los hijos mantienen el material genetico, en el caso que no coincidan
     se toma de forma aleatoria con una probabilidad de 50% de obtener los genes de
     un padre o del otro. */
-    public ((int, int, int, int)[], (int, int, int, int)[]) BestFitnessCrossover((int, int, int, int)[] parent1, (int, int, int, int)[] parent2)
+    private ((int, int, int, int)[], (int, int, int, int)[]) BestFitnessCrossover((int, int, int, int)[] parent1, (int, int, int, int)[] parent2)
     {
         int chromosomeLength = parent1.Length;
 
