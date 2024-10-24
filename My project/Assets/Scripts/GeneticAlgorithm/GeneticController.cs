@@ -5,22 +5,30 @@ using UnityEngine;
 
 public class GeneticController : MonoBehaviour
 {
-    /* Population */
+    /* Generacion */
     private int currentGeneration = 1; 
+    [Range(10, 100)][SerializeField] private int populationSize = 10;
     private List<PlayerController> population = new List<PlayerController>();
+
+    /* Poblacion */
     [Range(20, 100)] [SerializeField] private int chromosomeLength = 20;
     [SerializeField] private float moveCooldown = 0.2f;
     [SerializeField] private int velocity = 5;
-    [Range(5, 50)][SerializeField] private int populationSize = 5;
     [SerializeField] private GameObject playerPrefab;
-    [SerializeField] private float mutationRate = 0.02f;
-    private float generationTime = 0;
+
+
+    /* Algoritmo */
     private Selections selections;
     private Crosses crosses;
     private Mutations mutations;
+
+    /* Otros */
+    private float generationTime = 0;
     private float bestFitness = 0f;
     private ObstaclesManager obstaclesManager;
     private CheckpointsManager checkpointsManager;
+
+    /* Referencias a objetos */
     void Awake()
     {
         selections = FindAnyObjectByType<Selections>();
@@ -32,8 +40,15 @@ public class GeneticController : MonoBehaviour
     
     void Start()
     {
-        populationSize *= 2;
-        InitializePopulation();
+        /* Inicializamos la poblacion inicial */
+        for (int i = 0; i < populationSize; i++)
+        {
+            GameObject playerObj = Instantiate(playerPrefab, transform.position, Quaternion.identity);
+            PlayerController player = playerObj.GetComponent<PlayerController>();
+            player.InitializeGenes();
+            population.Add(player);
+        }
+
         generationTime = moveCooldown * chromosomeLength + 1f;
         checkpointsManager.InitializePlayers();
     }
@@ -46,7 +61,7 @@ public class GeneticController : MonoBehaviour
         }
         if (AllPlayersAreDead())
         {
-            BreedNewPopulation();
+            CreateNewPopulation();
         }
         generationTime -= Time.deltaTime;
         if (generationTime < 0)
@@ -58,18 +73,6 @@ public class GeneticController : MonoBehaviour
             generationTime = moveCooldown * chromosomeLength + 1f;
         }
     }
-
-    void InitializePopulation()
-    {
-        for (int i = 0; i < populationSize; i++)
-        {
-            GameObject playerObj = Instantiate(playerPrefab, transform.position, Quaternion.identity);
-            PlayerController player = playerObj.GetComponent<PlayerController>();
-            player.InitializeGenes();
-            population.Add(player);
-        }
-    }
-
     bool AllPlayersAreDead()
     {
         return population.All(p => p.isDead);
@@ -87,7 +90,7 @@ public class GeneticController : MonoBehaviour
         return false;
     }
 
-    void BreedNewPopulation()
+    void CreateNewPopulation()
     {
         List<PlayerController> newPopulation = new List<PlayerController>();
         population.Sort((a, b) => a.getFitness().CompareTo(b.getFitness()));
@@ -96,25 +99,32 @@ public class GeneticController : MonoBehaviour
             bestFitness = population[population.Count - 1].getFitness();
         }
 
-        for (int i = 0; i < populationSize / 2; i++)
+        /* Añadimos nuevos individuos a la poblacion mediante seleccion-cruce-mutacion */
+        while (newPopulation.Count < populationSize)
         {
-            PlayerController parent1 = selections.NormalSelection(); 
-            PlayerController parent2 = selections.NormalSelection();
-            ((int, int, int, int)[], (int, int, int, int)[]) newAdn = crosses.NormalCrossOver(parent1, parent2); 
+            PlayerController parent1 = selections.RouletteWheelSelection(population); 
+            PlayerController parent2 = selections.RouletteWheelSelection(population);
+            ((int, int, int, int)[], (int, int, int, int)[]) newAdn = crosses.SinglePointCrossover(parent1, parent2); 
 
-            GameObject playerObj1 = Instantiate(playerPrefab, transform.position, Quaternion.identity);
-            PlayerController child1 = playerObj1.GetComponent<PlayerController>();
-            child1.InitializeGenes(newAdn.Item1);
-            mutations.NormalMutation(child1);
-            newPopulation.Add(child1);
-
-            GameObject playerObj2 = Instantiate(playerPrefab, transform.position, Quaternion.identity);
-            PlayerController child2 = playerObj2.GetComponent<PlayerController>();
-            child2.InitializeGenes(newAdn.Item2);
-            mutations.NormalMutation(child2);
-            newPopulation.Add(child2);
+            if (newPopulation.Count < populationSize)
+            {
+                GameObject playerObj1 = Instantiate(playerPrefab, transform.position, Quaternion.identity);
+                PlayerController child1 = playerObj1.GetComponent<PlayerController>();
+                child1.InitializeGenes(newAdn.Item1);
+                mutations.UniformMutation(child1);
+                newPopulation.Add(child1);
+            }
+            if (newPopulation.Count < populationSize)
+            {
+                GameObject playerObj2 = Instantiate(playerPrefab, transform.position, Quaternion.identity);
+                PlayerController child2 = playerObj2.GetComponent<PlayerController>();
+                child2.InitializeGenes(newAdn.Item2);
+                mutations.UniformMutation(child2);
+                newPopulation.Add(child2);
+            }
         }
 
+        /* Remplazamos la poblacion anterior con la nueva */
         foreach (var player in population)
         {
             Destroy(player.gameObject);
@@ -122,6 +132,7 @@ public class GeneticController : MonoBehaviour
         currentGeneration ++;
         population = newPopulation;
 
+        /* Reiniciamos los obstaculos y checkpoints */
         if (obstaclesManager)
         {
             obstaclesManager.RebootAll();
@@ -130,8 +141,7 @@ public class GeneticController : MonoBehaviour
     }
     
     public List<PlayerController> getPopulation() => population;
-    public int getAdnLength() => chromosomeLength;
-    public float getMutationRate() => mutationRate;
+    public int getChromosomeLength() => chromosomeLength;
     public int getCurrentGeneration() => currentGeneration;
     public float getMoveCooldown() => moveCooldown;
     public int getVelocity() => velocity;

@@ -4,30 +4,162 @@ using UnityEngine;
 
 public class Crosses : MonoBehaviour
 {
-    private GeneticController geneticController;
-    void Awake()
+    /* Se selecciona aleatoriamente un punto de cruce en la cadena de genes de los padres, 
+    y se intercambia todo el material genético después de ese punto para formar los hijos. */
+    public ((int, int, int, int)[], (int, int, int, int)[]) SinglePointCrossover(PlayerController parent1, PlayerController parent2)
     {
-        geneticController = FindAnyObjectByType<GeneticController>();
-    }
+        int chromosomeLength = parent1.chromosome.Length;
+        int pivot = Random.Range(0, chromosomeLength);
 
-    public ((int, int, int, int)[], (int, int, int, int)[]) NormalCrossOver(PlayerController parent1, PlayerController parent2)
-    {
-        int adnLength = geneticController.getAdnLength();
-        int pivot = Random.Range(0, adnLength);
-
-        (int, int, int, int)[] child1 = new (int, int, int, int)[adnLength];
-        (int, int, int, int)[] child2 = new (int, int, int, int)[adnLength];
+        (int, int, int, int)[] genesParent1 = parent1.chromosome;
+        (int, int, int, int)[] genesParent2 = parent2.chromosome;
+        (int, int, int, int)[] child1 = new (int, int, int, int)[chromosomeLength];
+        (int, int, int, int)[] child2 = new (int, int, int, int)[chromosomeLength];
 
         for (int i = 0; i < pivot; i++)
         {
-            child1[i] = parent1.genes[i];
-            child2[i] = parent2.genes[i];
+            child1[i] = genesParent1[i];
+            child2[i] = genesParent2[i];
         }
 
-        for (int i = pivot; i < adnLength; i++)
+        for (int i = pivot; i < chromosomeLength; i++)
         {
-            child1[i] = parent2.genes[i];
-            child2[i] = parent1.genes[i];
+            child1[i] = genesParent2[i];
+            child2[i] = genesParent1[i];
+        }
+
+        return (child1, child2);
+    }
+
+    /* En este tipo de cruce, se seleccionan dos puntos en la cadena genética, 
+    y el intercambio de material genético se realiza entre esos dos puntos. */
+    public ((int, int, int, int)[], (int, int, int, int)[]) TwoPointCrossover(PlayerController parent1, PlayerController parent2)
+    {
+        int chromosomeLength = parent1.chromosome.Length;
+        int pivot1 = Random.Range(0, chromosomeLength - 1);
+        int pivot2 = Random.Range(pivot1 + 1, chromosomeLength);
+
+        (int, int, int, int)[] genesParent1 = parent1.chromosome;
+        (int, int, int, int)[] genesParent2 = parent2.chromosome;
+        (int, int, int, int)[] child1 = new (int, int, int, int)[chromosomeLength];
+        (int, int, int, int)[] child2 = new (int, int, int, int)[chromosomeLength];
+
+        for (int i = 0; i < pivot1; i++)
+        {
+            child1[i] = genesParent1[i];
+            child2[i] = genesParent2[i];
+        }
+
+        for (int i = pivot1; i < pivot2; i++)
+        {
+            child1[i] = genesParent2[i];
+            child2[i] = genesParent1[i];
+        }
+
+        for (int i = pivot2; i < chromosomeLength; i++)
+        {
+            child1[i] = genesParent1[i];
+            child2[i] = genesParent2[i];
+        }
+
+        return (child1, child2);
+    }
+
+    /* Este es una generalización del cruce de dos puntos. Se seleccionan varios 
+    puntos de cruce en la cadena genética y se alterna la combinación de genes 
+    entre esos puntos. */
+    public ((int, int, int, int)[], (int, int, int, int)[]) MultiPointCrossover(PlayerController parent1, PlayerController parent2)
+    {
+        int chromosomeLength = parent1.chromosome.Length;
+        int acumulated = 0;
+        bool isChanged = true;
+        
+        (int, int, int, int)[] genesParent1 = parent1.chromosome;
+        (int, int, int, int)[] genesParent2 = parent2.chromosome;
+        (int, int, int, int)[] child1 = new (int, int, int, int)[chromosomeLength];
+        (int, int, int, int)[] child2 = new (int, int, int, int)[chromosomeLength];
+
+        while (acumulated < chromosomeLength)
+        {
+            int pivot = Random.Range(acumulated, chromosomeLength);
+            if (isChanged)
+            {
+                for (int i = acumulated; i < pivot; i++)
+                {
+                    child1[i] = genesParent1[i];
+                    child2[i] = genesParent2[i];
+                }
+            } 
+            else
+            {
+                for (int i = acumulated; i < pivot; i++)
+                {
+                    child1[i] = genesParent2[i];
+                    child2[i] = genesParent1[i];
+                }
+            }
+            isChanged = !isChanged;
+            acumulated = pivot;
+        }
+
+        return (child1, child2);
+    }
+
+    /* En lugar de seleccionar puntos específicos para intercambiar bloques de genes, 
+    en el cruce uniforme se considera cada gen de forma independiente, con 
+    una probabilidad predefinida (generalmente 50%) de que el gen de un padre sea 
+    tomado o no. */
+    public ((int, int, int, int)[], (int, int, int, int)[]) UniformCrossover(PlayerController parent1, PlayerController parent2)
+    {
+        int chromosomeLength = parent1.chromosome.Length;
+
+        (int, int, int, int)[] genesParent1 = parent1.chromosome;
+        (int, int, int, int)[] genesParent2 = parent2.chromosome;
+        (int, int, int, int)[] child1 = new (int, int, int, int)[chromosomeLength];
+        (int, int, int, int)[] child2 = new (int, int, int, int)[chromosomeLength];
+
+        for (int i = 0; i < chromosomeLength; i++)
+        {
+            float probability = Random.Range(0f, 1f);
+            if (probability < 0.5)
+            {
+                child1[i] = genesParent1[i];
+                child2[i] = genesParent2[i];
+            } else 
+            {
+                child1[i] = genesParent2[i];
+                child2[i] = genesParent1[i];
+            }
+        }
+
+        return (child1, child2);
+    }
+
+    /* En este tipo de cruce se seleccionan uno a uno cada gen y si en ambos padres 
+    coinciden los hijos mantienen el material genetico, en el caso que no coincidan
+    se toma de forma aleatoria con una probabilidad de 50% de obtener los genes de
+    un padre o del otro. */
+    public ((int, int, int, int)[], (int, int, int, int)[]) BestFitnessCrossover(PlayerController parent1, PlayerController parent2)
+    {
+        int chromosomeLength = parent1.chromosome.Length;
+
+        (int, int, int, int)[] genesParent1 = parent1.chromosome;
+        (int, int, int, int)[] genesParent2 = parent2.chromosome;
+        (int, int, int, int)[] child1 = new (int, int, int, int)[chromosomeLength];
+        (int, int, int, int)[] child2 = new (int, int, int, int)[chromosomeLength];
+
+        for (int i = 0; i < chromosomeLength; i++)
+        {
+            if (genesParent1[i] == genesParent2[i])
+            {
+                child1[i] = genesParent1[i];
+                child2[i] = genesParent1[i];
+            }
+            else
+            {
+                child1[i] = (Random.Range(0f, 1f) < 0.5) ? genesParent1[i] : genesParent2[i];
+                child2[i] = (Random.Range(0f, 1f) < 0.5) ? genesParent1[i] : genesParent2[i];
+            }
         }
 
         return (child1, child2);

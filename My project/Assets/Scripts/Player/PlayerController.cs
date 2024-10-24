@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public (int, int, int, int)[] genes { get; private set; } = null;
+    public (int, int, int, int)[] chromosome { get; private set; } = null;
     private int currentGene = 0;
     private Rigidbody2D rb;
     private int velocity = 0;
@@ -31,15 +31,15 @@ public class PlayerController : MonoBehaviour
     {
         if (rb) 
         {
-            if (isFinish || currentGene >= genes.Length) 
+            if (isFinish || currentGene >= chromosome.Length) 
             {
                 rb.velocity = Vector2.zero;
                 return;
             }
             moveTimer -= Time.deltaTime;
-            if (moveTimer <= 0 && currentGene < genes.Length && !isDead && !isFinish && checkpoint)
+            if (moveTimer <= 0 && currentGene < chromosome.Length && !isDead && !isFinish && checkpoint)
             {
-                Move(genes[currentGene]);
+                Move(chromosome[currentGene]);
                 fitness = Vector3.Distance(transform.position, checkpoint.transform.position);
             }
         }
@@ -47,24 +47,24 @@ public class PlayerController : MonoBehaviour
     
     public void InitializeGenes()
     {
-        genes = new (int, int, int, int)[geneticController.getAdnLength()];
-        for (int i = 0; i < geneticController.getAdnLength(); i++){
+        chromosome = new (int, int, int, int)[geneticController.getChromosomeLength()];
+        for (int i = 0; i < geneticController.getChromosomeLength(); i++){
             int randomNumber = Random.Range(0, 4);
             if (randomNumber == 0) {
-                genes[i] = (1, 0, 0, 0);
+                chromosome[i] = (1, 0, 0, 0);
             } else if (randomNumber == 1) {
-                genes[i] = (0, 1, 0, 0);
+                chromosome[i] = (0, 1, 0, 0);
             } else if (randomNumber == 2) {
-                genes[i] = (0, 0, 1, 0);
+                chromosome[i] = (0, 0, 1, 0);
             } else {
-                genes[i] = (0, 0, 0, 1);
+                chromosome[i] = (0, 0, 0, 1);
             }
         }
     }
 
     public void InitializeGenes((int, int, int, int)[] newGenes)
     {
-        genes = newGenes;
+        chromosome = newGenes;
     }
 
     void Move((int, int, int, int) movement)
