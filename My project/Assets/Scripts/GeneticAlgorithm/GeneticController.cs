@@ -33,6 +33,7 @@ public class GeneticController : MonoBehaviour
     /* Otros */
     private bool simulationFinished = false;
     private float bestFitness = 0f;
+    private Logger logger;
 
     /* Referencias a objetos */
     void Awake()
@@ -42,6 +43,7 @@ public class GeneticController : MonoBehaviour
         mutations = FindAnyObjectByType<Mutations>();
         obstaclesManager = FindAnyObjectByType<ObstaclesManager>();
         checkpointsManager = FindAnyObjectByType<CheckpointsManager>();
+        logger = FindAnyObjectByType<Logger>();
     }
     
     void Start()
@@ -57,6 +59,9 @@ public class GeneticController : MonoBehaviour
 
         /* Cargamos los checkpoints en los individuos */
         checkpointsManager.LoadCheckpoints();
+
+        /* Recolectamos datos */
+        logger.InitialData();
     }
 
     void Update()
@@ -68,6 +73,9 @@ public class GeneticController : MonoBehaviour
             {
                 simulationFinished = true;
                 ClearPopulation();
+                
+                /* Recolectamos datos */
+                logger.FinalData();
             }
 
             /* Si todos murieron creamos una nueva poblacion */
@@ -171,4 +179,7 @@ public class GeneticController : MonoBehaviour
     public float GetPenality() => penality;
     public float GetBestFitness() => bestFitness;
     public int GetPopulationSize() => populationSize;
+    public Selections.SelectionsOptions GetSelectionOptions() => selectionOptions;
+    public Crosses.CrossesOptions GetCrossesOptions() => crossesOptions;
+    public Mutations.MutationsOptions GetMutationsOptions() => mutationsOptions;
 }

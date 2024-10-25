@@ -17,6 +17,8 @@ public class TimeUI : MonoBehaviour
     {
         totalTime += Time.deltaTime;
         string totalTimeFormatted = totalTime.ToString("F2");
-        textMesh.text = "Tiempo total: " + totalTimeFormatted + "s";
+        textMesh.text = "Tiempo transcurrido " + totalTimeFormatted + "s";
     }
+
+    public string GetTotalTime() => totalTime.ToString("F2");
 }
