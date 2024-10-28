@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GeneticController : MonoBehaviour
 {
@@ -48,6 +49,15 @@ public class GeneticController : MonoBehaviour
     
     void Start()
     {
+        LevelController levelController = FindObjectOfType<LevelController>();
+        if (levelController != null)
+        {
+            populationSize = levelController.GetPopulationSize();
+            chromosomeLength = levelController.GetChromosomeLength();
+            selectionOptions = levelController.GetSelection();
+            mutationsOptions = levelController.GetMutation();
+            crossesOptions = levelController.GetCross();
+        }
         /* Inicializamos la poblacion inicial */
         for (int i = 0; i < populationSize; i++)
         {
@@ -60,7 +70,7 @@ public class GeneticController : MonoBehaviour
         /* Cargamos los checkpoints en los individuos */
         checkpointsManager.LoadCheckpoints();
 
-        /* Recolectamos datos */
+        /* Logs de datos */
         logger.InitialData();
     }
 
@@ -74,8 +84,9 @@ public class GeneticController : MonoBehaviour
                 simulationFinished = true;
                 ClearPopulation();
                 
-                /* Recolectamos datos */
+                /* Logs de datos */
                 logger.FinalData();
+                SceneManager.LoadScene(0);
             }
 
             /* Si todos murieron creamos una nueva poblacion */

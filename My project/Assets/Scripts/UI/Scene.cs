@@ -14,4 +14,9 @@ public class Scene : MonoBehaviour
     {
         Application.Quit();
     }
+
+    public void PlayScene()
+    {
+        SceneManager.LoadScene(LevelController.Instance.GetLevel());
+    }
 }

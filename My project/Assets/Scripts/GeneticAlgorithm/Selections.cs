@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Selections : MonoBehaviour
@@ -9,6 +10,15 @@ public class Selections : MonoBehaviour
     [Range(1.2f, 4f)] [SerializeField] private float factorTruncationSelection = 1.3f;
     [Range(2, 10)] [SerializeField] private int capacityTournamentSelection = 2;
     [Range(2, 10)] [SerializeField] private int capacityStochasticTournamentSelection = 2;
+
+    void Start()
+    {
+        LevelController levelController = FindObjectOfType<LevelController>();
+        if (levelController != null)
+        {
+            eliteCount = levelController.GetEliteCount();
+        }
+    }
 
     public PlayerController Select(SelectionsOptions selectionOptions, List<PlayerController> population)
     {
