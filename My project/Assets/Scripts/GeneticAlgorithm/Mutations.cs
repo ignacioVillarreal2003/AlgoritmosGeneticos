@@ -107,11 +107,11 @@ public class Mutations : MonoBehaviour
     {
         if (isBetter)
         {
-            mutationRateAdaptative = System.Math.Clamp(mutationRateAdaptative * 0.9f, 0.01f, 0.1f);
+            mutationRateAdaptative = System.Math.Clamp(mutationRateAdaptative * 0.9f, 0.02f, 0.1f);
         }
         else 
         {
-            mutationRateAdaptative = System.Math.Clamp(mutationRateAdaptative * 1.1f, 0.01f, 0.1f);
+            mutationRateAdaptative = System.Math.Clamp(mutationRateAdaptative * 1.1f, 0.02f, 0.1f);
         }
     }
 

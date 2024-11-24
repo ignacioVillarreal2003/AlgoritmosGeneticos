@@ -1,7 +1,7 @@
 using UnityEngine;
 using TMPro;
 
-public class BestFitnessUI : MonoBehaviour
+public class ActualDistance : MonoBehaviour
 {
     private GeneticController geneticController;
     private TextMeshProUGUI textMesh;
@@ -14,6 +14,6 @@ public class BestFitnessUI : MonoBehaviour
 
     void Update()
     {
-        textMesh.text = "Mejor fitness " + geneticController.GetBestFitness().ToString("F4") + "/1";
+        textMesh.text = "Distancia actual " + geneticController.GetActualDistance().ToString("F4");
     }
 }

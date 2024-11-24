@@ -16,7 +16,7 @@ public class GeneticController : MonoBehaviour
     [Range(20, 100)] [SerializeField] private int chromosomeLength = 40;
     [SerializeField] private float moveCooldown = 0.2f;
     [SerializeField] private int velocity = 5;
-    [SerializeField] private float penality = 0.05f;
+    [SerializeField] private float penality = 0.10f;
     [SerializeField] private GameObject playerPrefab;
 
     /* Algoritmo */
@@ -30,10 +30,12 @@ public class GeneticController : MonoBehaviour
     /* Entorno */
     private ObstaclesManager obstaclesManager;
     private CheckpointsManager checkpointsManager;
+    private Checkpoint lastCheckpoint;
 
     /* Otros */
     private bool simulationFinished = false;
-    private float bestFitness = 0f;
+    private float bestDistance = 10000f;
+    private float actualDistance = 0;
     private Logger logger;
 
     /* Referencias a objetos */
@@ -66,9 +68,6 @@ public class GeneticController : MonoBehaviour
             player.InitializeGenes();
             population.Add(player);
         }
-
-        /* Cargamos los checkpoints en los individuos */
-        checkpointsManager.LoadCheckpoints();
 
         /* Logs de datos */
         logger.InitialData();
@@ -104,18 +103,25 @@ public class GeneticController : MonoBehaviour
 
     void CreateNewPopulation()
     {
+        CalculateFitness();
+        logger.LogGenerationStats();
         PopulationProcessing();
-
         /* Añadimos nuevos individuos a la poblacion mediante seleccion-cruce-mutacion */
         List<PlayerController> newPopulation = new List<PlayerController>();
+        List<(int, int, int, int)[]> elitChromosomes = new List<(int, int, int, int)[]>();
 
         List<PlayerController> elitPopulation = selections.ElitismSelection(population); 
-        elitPopulation.ForEach((p) => { 
+        elitPopulation.ForEach((PlayerController p) => { 
+            elitChromosomes.Add(p.GetChromosome());
+        });
+
+        foreach ((int, int, int, int)[] chromosome in elitChromosomes)
+        {
             GameObject playerObj = Instantiate(playerPrefab, transform.position, Quaternion.identity);
             PlayerController individual = playerObj.GetComponent<PlayerController>();
-            individual.SetChromosome(p.GetChromosome());
+            individual.SetChromosome(chromosome);
             newPopulation.Add(individual);
-        });
+        }
     
         while (newPopulation.Count < populationSize)
         {
@@ -151,16 +157,17 @@ public class GeneticController : MonoBehaviour
     /* Analisis de la poblacion */
     private void PopulationProcessing()
     {
-        population.Sort((a, b) => a.GetFitness().CompareTo(b.GetFitness()));
-        if (population[population.Count - 1].GetFitness() > bestFitness)
+        population.Sort((a, b) => a.GetFitness().CompareTo(b.GetFitness())); // Menor a mayor
+        if (population[population.Count - 1].GetDistanceToTarget() < bestDistance)
         {
-            bestFitness = population[population.Count - 1].GetFitness();
+            bestDistance = population[population.Count - 1].GetDistanceToTarget();
             mutations.ChangeMutationRateAdaptative(true);
         }
         else
         {
             mutations.ChangeMutationRateAdaptative(false);
         }
+        actualDistance = population[population.Count - 1].GetDistanceToTarget();
     }
 
     /* Elimina la poblacion */
@@ -179,7 +186,39 @@ public class GeneticController : MonoBehaviour
         {
             obstaclesManager.RebootAll();
         }
-        checkpointsManager.LoadCheckpoints();
+    }
+
+    private void CalculateFitness()
+    {
+        lastCheckpoint = checkpointsManager.GetLastCheckpoint();
+        float minDistance = float.MaxValue;
+        float maxDistance = float.MinValue;
+
+        foreach (var player in population)
+        {
+            float distance = Mathf.Abs(Vector3.Distance(player.transform.position, lastCheckpoint.transform.position));
+            player.SetDistanceToTarget(distance);
+            minDistance = Mathf.Min(minDistance, distance);
+            maxDistance = Mathf.Max(maxDistance, distance);
+        }
+
+        foreach (var player in population)
+        {
+            float normalizedFitness = 1f - ((player.GetDistanceToTarget() - minDistance) / (maxDistance - minDistance));
+            normalizedFitness = Mathf.Clamp(normalizedFitness, 0f, 1f);
+
+           int visitedCheckpoints = player.GetVisitedCheckpoints();
+            normalizedFitness += normalizedFitness * visitedCheckpoints * penality;
+
+            if (player.GetIsDead())
+            {
+                normalizedFitness -= normalizedFitness * penality;
+            }
+
+            normalizedFitness = Mathf.Clamp(normalizedFitness, 0f, 1f);
+
+            player.SetFitness(normalizedFitness);
+        }
     }
     
     public List<PlayerController> GetPopulation() => population;
@@ -188,7 +227,8 @@ public class GeneticController : MonoBehaviour
     public float GetMoveCooldown() => moveCooldown;
     public int GetVelocity() => velocity;
     public float GetPenality() => penality;
-    public float GetBestFitness() => bestFitness;
+    public float GetBestDistance() => bestDistance;
+    public float GetActualDistance() => actualDistance;
     public int GetPopulationSize() => populationSize;
     public Selections.SelectionsOptions GetSelectionOptions() => selectionOptions;
     public Crosses.CrossesOptions GetCrossesOptions() => crossesOptions;

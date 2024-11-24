@@ -7730,6 +7730,8 @@ MonoBehaviour:
       m_Image: {fileID: 0}
     - m_Text: RankSelection
       m_Image: {fileID: 0}
+    - m_Text: SpecialRouletteWheelSelection
+      m_Image: {fileID: 0}
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []

@@ -26,6 +26,10 @@ public class Selections : MonoBehaviour
         {
             return RouletteWheelSelection(population); 
         }
+        if (selectionOptions == SelectionsOptions.SpecialRouletteWheelSelection)
+        {
+            return SpecialRouletteWheelSelection(population); 
+        }
         if (selectionOptions == SelectionsOptions.TournamentSelection)
         {
             return TournamentSelection(population); 
@@ -52,6 +56,7 @@ public class Selections : MonoBehaviour
     public enum SelectionsOptions
     {
         RouletteWheelSelection,
+        SpecialRouletteWheelSelection,
         TournamentSelection,
         RandomTournamentSelection,
         StochasticTournamentSelection,
@@ -88,6 +93,29 @@ public class Selections : MonoBehaviour
         }
 
         return population.Last();
+    }
+
+    private PlayerController SpecialRouletteWheelSelection(List<PlayerController> population)
+    {
+        int topCount = Mathf.CeilToInt(population.Count * 0.3f);
+        List<PlayerController> topPlayers = population
+            .OrderByDescending(p => p.GetFitness())
+            .Take(topCount)
+            .ToList();
+
+        float totalFitness = topPlayers.Sum(p => p.GetFitness());
+        float randomValue = Random.Range(0, totalFitness);
+
+        float cumulativeFitness = 0f;
+        foreach (PlayerController player in topPlayers)
+        {
+            cumulativeFitness += player.GetFitness();
+            if (randomValue <= cumulativeFitness)
+            {
+                return player;
+            }
+        }
+        return topPlayers.Last();
     }
 
     /* En este método, se seleccionan aleatoriamente varios individuos 

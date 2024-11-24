@@ -182,6 +182,10 @@ public class LevelController : MonoBehaviour
         {
             selection = Selections.SelectionsOptions.RankSelection;
         }
+        else if (index == 6)
+        {
+            selection = Selections.SelectionsOptions.SpecialRouletteWheelSelection;
+        }
     }
 
     public void SetMutation(int index)

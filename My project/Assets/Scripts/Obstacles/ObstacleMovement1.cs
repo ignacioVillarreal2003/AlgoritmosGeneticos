@@ -15,12 +15,12 @@ public class ObstacleMovement1 : MonoBehaviour
     void Start()
     {
         initialPosition = transform.position;
-        speed = speed / 100f;
+        speed = speed / 10f;
         direction = 1f;
         InitializeMovement();
     }
 
-    void Update()
+    void FixedUpdate()
     {
         Vector3 movement = new Vector3(speed * direction, 0, 0);
         transform.position += movement;

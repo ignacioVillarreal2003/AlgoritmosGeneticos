@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -7,21 +8,21 @@ public class PlayerController : MonoBehaviour
     private (int, int, int, int)[] chromosome;
     private int currentGene = 0;
     private float fitness = 0f;
+    private float distanceToTarget = 0; 
     private bool isDead = false;
     private bool isFinish = false;
 
     /* Variables */
     private int velocity = 0;
     private float moveCooldown = 0f;
-    private float penality = 0f;
 
     /* Algoritmo */
     private GeneticController geneticController;
 
     /* Otros */
     private Rigidbody2D rb;
-    private Checkpoint checkpoint;
     private CheckpointsManager checkpointsManager;
+    private HashSet<Checkpoint> visitedCheckpoints = new HashSet<Checkpoint>();
     
     /* Referencias a objetos */
     void Awake()
@@ -35,12 +36,11 @@ public class PlayerController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         velocity = geneticController.GetVelocity();
-        penality = geneticController.GetPenality();
         moveCooldown = geneticController.GetMoveCooldown();
     }
 
     /* Manejador del movimiento del individuo */
-    void Update()
+    void FixedUpdate()
     {
         moveCooldown -= Time.deltaTime;
         if (moveCooldown <= 0 && currentGene == chromosome.Length - 1)
@@ -50,7 +50,6 @@ public class PlayerController : MonoBehaviour
         if (moveCooldown <= 0 && !isDead && !isFinish)
         {
             Move(chromosome[currentGene]);
-            fitness = Vector3.Distance(transform.position, checkpoint.transform.position);
         }
     }
     
@@ -93,10 +92,7 @@ public class PlayerController : MonoBehaviour
         /* Interaccion del individuo con los obstaculos */
         if (other.gameObject.CompareTag("Obstacle"))
         {
-            fitness *= 1 + penality;
-
             isDead = true;
-
             Destroy(rb);
         }
     }
@@ -106,18 +102,15 @@ public class PlayerController : MonoBehaviour
         /* Interaccion del individuo con el checkpoint */
         if (other.gameObject.CompareTag("Checkpoint"))
         {
-            if (checkpointsManager.IsTheEnd())
+            Checkpoint checkpoint = other.gameObject.GetComponent<Checkpoint>();
+            if (checkpointsManager.IsTheEnd(checkpoint))
             {
                 isFinish = true;
             }
-            else 
+            else if (!visitedCheckpoints.Contains(checkpoint))
             {
-                fitness *= 1 - penality;
-                checkpointsManager.NextCheckpoint();
-                checkpointsManager.LoadCheckpoints();
+                visitedCheckpoints.Add(checkpoint);
             }
-            
-            Destroy(other.gameObject);
         }
     }
 
@@ -125,6 +118,9 @@ public class PlayerController : MonoBehaviour
     public void SetChromosome((int, int, int, int)[] newGenes) => chromosome = newGenes;
     public bool GetIsDead() => isDead;
     public bool GetIsFinish() => isFinish;
-    public float GetFitness() => 1 / fitness;
-    public void SetCheckpoint(Checkpoint value) => checkpoint = value;
+    public void SetDistanceToTarget(float distance) => distanceToTarget = distance;
+    public float GetDistanceToTarget() => distanceToTarget;
+    public void SetFitness(float value) => fitness = value;
+    public float GetFitness() => fitness;
+    public int GetVisitedCheckpoints() => visitedCheckpoints.Count;
 }
